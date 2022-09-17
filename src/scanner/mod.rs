@@ -1,5 +1,7 @@
 use crate::token::{Token, TokenType};
 
+// TODO try to implement the error handling of multiple mistypen tokens
+
 pub struct Scanner {
     source: String,
     tokens: Vec<Token>,
@@ -12,10 +14,23 @@ impl Scanner {
     fn scanTokens(&mut self) {
         while !self.isAtEnd() {
             self.start = self.current;
-            self.scanTokens();
+            self.tokens.push(self.scanToken());
         }
 
         self.tokens.push(Token::new(TokenType::EOF, self.line));
+    }
+
+    fn scanToken(&self) -> Token {
+        let c = self.advance();   
+
+        match c {
+            '(' => Token::new(TokenType::LEFT_PAREN, 0),
+            _ => Token::new(TokenType::EOF, 0)
+        }
+    }
+
+    fn advance(&self) -> char {
+        self.source.chars().nth(self.current).unwrap()
     }
 
     fn new(src: String) -> Scanner {
