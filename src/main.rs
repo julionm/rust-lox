@@ -1,13 +1,14 @@
 mod token;
 mod scanner;
 mod runtime;
+mod errors;
 
 use std::env;
 use runtime::{
-    handle_error,
     run_file,
     run_prompt
 };
+use errors::handle_error;
 
 // TODO study more custom errors to handle better
 

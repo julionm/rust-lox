@@ -43,7 +43,7 @@ pub struct Token {
 }
 
 impl Token {
-    pub fn new(token_type: TokenType, line: usize) -> Token {
+    pub fn new(token_type: TokenType, lexeme: String, literal: String, line: usize) -> Token {
         Token {
             token_type,
             lexeme: String::new(),

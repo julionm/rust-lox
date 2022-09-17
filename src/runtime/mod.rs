@@ -1,19 +1,7 @@
 use std::io::{Read, stdin};
 use std::fs::File;
 
-pub enum LoxErrors {
-    ParserError {
-        message: String
-    },
-    LexicalError {
-        message: String
-    },
-    RuntimeError {
-        message: String
-    },
-    FileOpenningError,
-    FileReadingError
-}
+use crate::errors::LoxErrors;
 
 pub fn run_prompt() -> Result<String, LoxErrors> {
 
@@ -54,20 +42,4 @@ pub fn run<'a>(code: String) -> Result<&'a str, LoxErrors>{
     println!("my code was: {code}");
 
     Ok("")
-}
-
-pub fn handle_error(error: LoxErrors) {
-    match error {
-        LoxErrors::FileOpenningError => {
-            println!("Error trying to open the source code.");
-        },
-        LoxErrors::FileReadingError => {
-            println!("Failed to read the source code.");
-        },
-        LoxErrors::LexicalError { message }
-        | LoxErrors::ParserError { message }
-        | LoxErrors::RuntimeError { message } => {
-            println!("The interpreter crashed with the error: {}", message);
-        }
-    }
 }

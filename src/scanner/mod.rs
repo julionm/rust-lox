@@ -11,22 +11,46 @@ pub struct Scanner {
 }
 
 impl Scanner {
+    // TODO IMPLEMENT ERROR HANDLING FOR SCANNER
+
     fn scanTokens(&mut self) {
         while !self.isAtEnd() {
             self.start = self.current;
             self.tokens.push(self.scanToken());
         }
 
-        self.tokens.push(Token::new(TokenType::EOF, self.line));
+        self.tokens.push(Token::new(TokenType::EOF, String::new(), String::new(), self.line));
     }
 
     fn scanToken(&self) -> Token {
         let c = self.advance();   
 
         match c {
-            '(' => Token::new(TokenType::LEFT_PAREN, 0),
-            _ => Token::new(TokenType::EOF, 0)
+            '(' => self.addNewToken(TokenType::LEFT_PAREN, None),
+            ')' => self.addNewToken(TokenType::RIGHT_PAREN, None),
+            '{' => self.addNewToken(TokenType::LEFT_BRACE, None),
+            '}' => self.addNewToken(TokenType::RIGHT_BRACE, None),
+            ',' => self.addNewToken(TokenType::COMMA, None),
+            '.' => self.addNewToken(TokenType::DOT, None),
+            '-' => self.addNewToken(TokenType::MINUS, None),
+            '+' => self.addNewToken(TokenType::PLUS, None),
+            ';' => self.addNewToken(TokenType::SEMICOLON, None),
+            '*' => self.addNewToken(TokenType::STAR, None),
+            _ => self.addNewToken(TokenType::EOF, None) // TODO do this return an error
         }
+    }
+
+    fn addNewToken(&self, token_type: TokenType, literal: Option<String>) -> Token {
+        let lexeme = &self.source[self.start..self.current];
+
+        Token::new(
+            token_type,
+            String::from(lexeme),
+            match literal {
+                Some(val) => val,
+                None => String::new()
+            },
+            0)
     }
 
     fn advance(&self) -> char {
