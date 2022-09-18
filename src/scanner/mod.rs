@@ -1,7 +1,7 @@
 use crate::token::{Token, TokenType};
 
 // TODO try to implement the error handling of multiple mistypen tokens
-// TODO rewrite methods names without camel_case
+// * DONE rewrite methods names without camel_case 
 // TODO handle basic errors
 
 pub struct Scanner {
@@ -15,7 +15,7 @@ pub struct Scanner {
 impl Scanner {
     // TODO IMPLEMENT ERROR HANDLING FOR SCANNER
 
-    fn new(src: String) -> Scanner {
+    pub fn new(src: String) -> Scanner {
         Scanner {
              source: src,
              tokens: Vec::new(),
@@ -25,10 +25,10 @@ impl Scanner {
         } 
      }
 
-    fn scanTokens(&mut self) {
+    pub fn scan_tokens(&mut self) {
         while !self.isAtEnd() {
-            let current_token = self.getCurrentToken();
-            let new_token = self.scanToken(current_token);
+            let current_token = self.current_token();
+            let new_token = self.scan_token(current_token);
 
             self.tokens.push(new_token);
             self.current += 1; // ? it's different from the book but I think it's alright
@@ -44,72 +44,72 @@ impl Scanner {
         );
     }
 
-    fn scanToken(&mut self, c: char) -> Token {
+    fn scan_token(&mut self, c: char) -> Token {
         match c {
-            '(' => self.addNewToken(TokenType::LEFT_PAREN, None),
-            ')' => self.addNewToken(TokenType::RIGHT_PAREN, None),
-            '{' => self.addNewToken(TokenType::LEFT_BRACE, None),
-            '}' => self.addNewToken(TokenType::RIGHT_BRACE, None),
-            ',' => self.addNewToken(TokenType::COMMA, None),
-            '.' => self.addNewToken(TokenType::DOT, None),
-            '-' => self.addNewToken(TokenType::MINUS, None),
-            '+' => self.addNewToken(TokenType::PLUS, None),
-            ';' => self.addNewToken(TokenType::SEMICOLON, None),
-            '*' => self.addNewToken(TokenType::STAR, None),
+            '(' => self.add_new_token(TokenType::LEFT_PAREN, None),
+            ')' => self.add_new_token(TokenType::RIGHT_PAREN, None),
+            '{' => self.add_new_token(TokenType::LEFT_BRACE, None),
+            '}' => self.add_new_token(TokenType::RIGHT_BRACE, None),
+            ',' => self.add_new_token(TokenType::COMMA, None),
+            '.' => self.add_new_token(TokenType::DOT, None),
+            '-' => self.add_new_token(TokenType::MINUS, None),
+            '+' => self.add_new_token(TokenType::PLUS, None),
+            ';' => self.add_new_token(TokenType::SEMICOLON, None),
+            '*' => self.add_new_token(TokenType::STAR, None),
             '!' => {
-                let new_token = if self.matchNextToken('=') {
+                let new_token = if self.consume_next_token('=') {
                     TokenType::BANG_EQUAL
                 } else {
                     TokenType::BANG
                 };
 
-                self.addNewToken(new_token, None)
+                self.add_new_token(new_token, None)
             },
             '=' => {
-                let new_token = if self.matchNextToken('=') {
+                let new_token = if self.consume_next_token('=') {
                     TokenType::BANG_EQUAL
                 } else {
                     TokenType::BANG
                 };
 
-                self.addNewToken(new_token, None)
+                self.add_new_token(new_token, None)
             },
             '<' => {
-                let new_token = if self.matchNextToken('=') {
+                let new_token = if self.consume_next_token('=') {
                     TokenType::LESS_EQUAL
                 } else {
                     TokenType::LESS
                 };
 
-                self.addNewToken(new_token, None)
+                self.add_new_token(new_token, None)
             },
             '>' => {
-                let new_token = if self.matchNextToken('=') {
+                let new_token = if self.consume_next_token('=') {
                     TokenType::GREATER_EQUAL
                 } else {
                     TokenType::GREATER
                 };
 
-                self.addNewToken(new_token, None)
+                self.add_new_token(new_token, None)
             },
             '/' => {
-                if self.matchNextToken('/') {
-                    while self.peek() != '\n' && !self.isAtEnd() {
-                        
+                if self.consume_next_token('/') {
+                    while self.current_token() != '\n' && !self.isAtEnd() {
+                        self.advance();
                     }
                 }
 
-                self.addNewToken(TokenType::EOF, None)
+                self.add_new_token(TokenType::EOF, None)
             }
-            _ => self.addNewToken(TokenType::EOF, None) // TODO do this return an error
+            _ => self.add_new_token(TokenType::EOF, None) // TODO do this return an error
         }
     }
 
-    fn setStart(&mut self, new_start: usize) {
+    fn set_start(&mut self, new_start: usize) {
         self.start = new_start;
     }
     
-    fn matchNextToken(&mut self, expected: char) -> bool {
+    fn consume_next_token(&mut self, expected: char) -> bool {
         if self.isAtEnd() // ? this verification is not needed unless this function is used in other places
             || self.source.chars().nth(self.current + 1).unwrap() != expected {
             return false;
@@ -122,21 +122,21 @@ impl Scanner {
 
     fn advance(&mut self) -> char {
         self.current += 1;
-        self.currentToken()
+        self.current_token()
     }
     
     fn peek(&self) -> char {
         if self.isAtEnd() { return '\0'; }
 
-        self.currentToken()
+        self.current_token()
     }
 
-    fn currentToken(&self) -> char {
+    fn current_token(&self) -> char {
         self.source.chars().nth(self.current).unwrap()
     }
 
-    fn addNewToken(&self, token_type: TokenType, literal: Option<String>) -> Token {
-        let lexeme = &self.source[self.start..self.current];
+    fn add_new_token(&self, token_type: TokenType, literal: Option<String>) -> Token {
+        let lexeme = &self.source[self.start..self.current]; // ! MAYBE this slice don't consider the start the right way
 
         Token::new(
             token_type,
@@ -146,12 +146,6 @@ impl Scanner {
                 None => String::new()
             },
             0)
-    }
-
-    // ? the `advance` was refactored to this method
-    // ? due to some problems with multiple mutable references of the struct
-    fn getCurrentToken(&self) -> char {
-        self.source.chars().nth(self.current).unwrap()
     }
 
     fn isAtEnd(&self) -> bool {
