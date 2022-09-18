@@ -1,6 +1,8 @@
 use crate::token::{Token, TokenType};
 
 // TODO try to implement the error handling of multiple mistypen tokens
+// TODO rewrite methods names without camel_case
+// TODO handle basic errors
 
 pub struct Scanner {
     source: String,
@@ -90,6 +92,15 @@ impl Scanner {
 
                 self.addNewToken(new_token, None)
             },
+            '/' => {
+                if self.matchNextToken('/') {
+                    while self.peek() != '\n' && !self.isAtEnd() {
+                        
+                    }
+                }
+
+                self.addNewToken(TokenType::EOF, None)
+            }
             _ => self.addNewToken(TokenType::EOF, None) // TODO do this return an error
         }
     }
@@ -107,6 +118,21 @@ impl Scanner {
         self.current += 1;
         
         true
+    }
+
+    fn advance(&mut self) -> char {
+        self.current += 1;
+        self.currentToken()
+    }
+    
+    fn peek(&self) -> char {
+        if self.isAtEnd() { return '\0'; }
+
+        self.currentToken()
+    }
+
+    fn currentToken(&self) -> char {
+        self.source.chars().nth(self.current).unwrap()
     }
 
     fn addNewToken(&self, token_type: TokenType, literal: Option<String>) -> Token {
