@@ -19,7 +19,9 @@ pub enum TokenType {
     GREATER, GREATER_EQUAL, LESS, LESS_EQUAL,
 
     // ? literals
-    IDENTIFIER, STRING, NUMBER,
+    IDENTIFIER,
+    STRING,
+    NUMBER,
 
     //? keywords
     AND, CLASS, ELSE, FALSE, FUN, FOR, IF,
@@ -34,20 +36,25 @@ impl Display for TokenType {
     }
 }
 
+pub enum TokenLiteralType {
+    String(String),
+    Number(f64),
+    Identifier(String)
+}
 
 pub struct Token {
     token_type: TokenType,
     lexeme: String,
-    literal: String,
+    literal: TokenLiteralType,
     line: usize
 }
 
 impl Token {
-    pub fn new(token_type: TokenType, lexeme: String, literal: String, line: usize) -> Token {
+    pub fn new(token_type: TokenType, lexeme: String, literal: TokenLiteralType, line: usize) -> Token {
         Token {
             token_type,
             lexeme: String::new(),
-            literal: String::new(),
+            literal,
             line
         }
     }
@@ -55,6 +62,6 @@ impl Token {
 
 impl ToString for Token {
     fn to_string(&self) -> String {
-        format!("{} {} {}", self.token_type, self.lexeme, self.literal)
+        format!("{} {} {}", self.token_type, self.lexeme, self.line)
     }
 }
