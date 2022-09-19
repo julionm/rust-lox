@@ -4,9 +4,10 @@ use crate::{token::{Token, TokenType, TokenLiteralType}, errors::LoxErrors};
 // * DONE rewrite methods names without camel_case 
 // TODO handle basic errors
 
+#[derive(Debug)]
 pub struct Scanner {
     source: String,
-    tokens: Vec<Token>,
+    pub tokens: Vec<Token>,
     start: usize,
     current: usize,
     line: usize
@@ -23,7 +24,7 @@ impl Scanner {
              current: 0,
              line: 0
         } 
-     }
+    }
 
     pub fn scan_tokens(&mut self) -> Result<&str, LoxErrors> {
         while !self.isAtEnd() {

@@ -2,6 +2,7 @@ use std::io::{Read, stdin};
 use std::fs::File;
 
 use crate::errors::LoxErrors;
+use crate::scanner::Scanner;
 
 pub fn run_prompt() -> Result<String, LoxErrors> {
 
@@ -39,7 +40,12 @@ pub fn run_file<'a>(path: String) -> Result<&'a str, LoxErrors> {
 }
 
 pub fn run<'a>(code: String) -> Result<&'a str, LoxErrors>{
-    println!("my code was: {code}");
+    
+    let mut scanner = Scanner::new(code);
 
-    Ok("")
+    scanner.scan_tokens()?;
+
+    println!("{:?}", scanner.tokens);
+
+    Ok("The scanning was alright")
 }

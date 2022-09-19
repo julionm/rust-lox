@@ -1,5 +1,6 @@
 use std::fmt::Display;
 
+#[derive(Debug)]
 pub enum TokenType {
     // ? single-character tokens
     LEFT_PAREN,
@@ -36,12 +37,14 @@ impl Display for TokenType {
     }
 }
 
+#[derive(Debug)]
 pub enum TokenLiteralType {
     String(String),
     Number(f64),
     Identifier(String)
 }
 
+#[derive(Debug)]
 pub struct Token {
     token_type: TokenType,
     lexeme: String,
