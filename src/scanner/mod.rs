@@ -27,7 +27,10 @@ impl Scanner {
     }
 
     pub fn scan_tokens(&mut self) -> Result<&str, LoxErrors> {
-        while !self.isAtEnd() {
+        println!("{}", self.source);
+        println!("");
+
+        while !self.is_at_end() {
             let current_token = self.current_token();
             let new_token = self.scan_token(current_token)?;
 
@@ -52,10 +55,13 @@ impl Scanner {
     }
 
     fn scan_token(&mut self, c: char) -> Result<Option<Token>, LoxErrors> {
+        println!("current char: {}", c);
+
         let result =
         match c {
             ' ' | '\r' | '\t' => return Ok(None),
             '\n' => {
+                println!("should increase line value...");
                 self.line += 1;
                 return Ok(None)
             }
@@ -110,7 +116,7 @@ impl Scanner {
                     },
                     '/' => {
                         if self.consume_next_token('/') {
-                            while self.current_token() != '\n' && !self.isAtEnd() {
+                            while self.current_token() != '\n' && !self.is_at_end() {
                                 self.advance();
                             }
                         }
@@ -118,7 +124,7 @@ impl Scanner {
                         self.add_new_token(TokenType::EOF, None)
                     },
                     '"' => {
-                        while self.current_token() != '"' && !self.isAtEnd() {
+                        while self.current_token() != '"' && !self.is_at_end() {
                             if self.current_token() == '\n' {
                                 self.line += 1;
                             }
@@ -126,7 +132,7 @@ impl Scanner {
                             self.advance();
                         }
 
-                        if self.isAtEnd() {
+                        if self.is_at_end() {
                             return Err(LoxErrors::LexicalError { message: String::from("Unterminated string") })
                         }
 
@@ -149,9 +155,14 @@ impl Scanner {
                             }
                         }
 
+                        println!("{:?}", self.tokens);
+
                         let my_float: f64 = match String::from(&self.source[self.start..self.current]).parse() {
                             Ok(val) => val,
-                            Err(_) => return Err(LoxErrors::LexicalError { message: String::from("Something occured when trying to parse a String to float") })
+                            Err(err) => return Err(
+                                LoxErrors::LexicalError { 
+                                    message: format!("An Unexpected Error Occured: {}", err.to_string()) 
+                                })
                         };
 
                         self.add_new_token(
@@ -165,14 +176,8 @@ impl Scanner {
         Ok(result)
     }
 
-
-
-    fn set_start(&mut self, new_start: usize) {
-        self.start = new_start;
-    }
-    
     fn consume_next_token(&mut self, expected: char) -> bool {
-        if self.isAtEnd() // ? this verification is not needed unless this function is used in other places
+        if self.is_at_end() // ? this verification is not needed unless this function is used in other places
             || self.source.chars().nth(self.current + 1).unwrap() != expected {
             return false;
         }
@@ -188,13 +193,13 @@ impl Scanner {
     }
     
     fn peek(&self) -> char {
-        if self.isAtEnd() { return '\0'; }
+        if self.is_at_end() { return '\0'; }
 
         self.current_token()
     }
 
     fn peek_next(&self) -> char {
-        if self.isAtEnd() { return '\0'; }
+        if self.is_at_end() { return '\0'; }
 
         self.get_next_token()
     }
@@ -217,10 +222,10 @@ impl Scanner {
                 Some(val) => val,
                 None => TokenLiteralType::String(String::new())
             },
-            0)
+            self.line)
     }
 
-    fn isAtEnd(&self) -> bool {
+    fn is_at_end(&self) -> bool {
         self.current >= self.source.len() - 1
     }
 }
