@@ -10,3 +10,8 @@ The Rlox are my rust implementation of Lox language on "Crafting Interpreters" b
 - Study more about error handling to guarantee that the user knows what is wrong
   - This is in progress, I've done a pretty good advance using Results and my custom errors
 - Create more tests while the Lexer is small to guarantee I'll have a working language at the end of the book
+
+
+### PROBLEMS
+
+- I've found a bug on comments, they're being considered as EOF tokens.... they should be completely ignored
