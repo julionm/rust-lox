@@ -1,7 +1,6 @@
 use std::fmt::Display;
-use std::collections::HashMap;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum TokenType {
     // ? single-character tokens
     LEFT_PAREN,

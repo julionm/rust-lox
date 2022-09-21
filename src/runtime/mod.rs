@@ -10,7 +10,7 @@ pub fn run_prompt() -> Result<String, LoxErrors> {
 
     match stdin().read_line(&mut code) {
         Ok(_) => (),
-        Err(err) => return Err(LoxErrors::FileOpenningError)
+        Err(_) => return Err(LoxErrors::FileOpenningError)
     };
 
     match run(code) {

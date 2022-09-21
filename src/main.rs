@@ -10,8 +10,6 @@ use runtime::{
 };
 use errors::handle_error;
 
-// TODO study more custom errors to handle better
-
 fn main() {
     let mut args_iter = env::args();
     args_iter.next(); // Skipping some environment vars

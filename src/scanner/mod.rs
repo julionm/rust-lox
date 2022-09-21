@@ -1,7 +1,7 @@
 use crate::{token::{Token, TokenType, TokenLiteralType}, errors::LoxErrors};
+use std::collections::HashMap;
 
 // TODO try to implement the error handling of multiple mistypen tokens
-// * DONE rewrite methods names without camel_case 
 // TODO handle basic errors
 
 #[derive(Debug)]
@@ -10,10 +10,13 @@ pub struct Scanner {
     pub tokens: Vec<Token>,
     start: usize,
     current: usize,
-    line: usize
+    line: usize,
+
+    // TODO once OnceCell is released, I should replace all the IDENTIFIERS HashMap
+    identifiers: HashMap<String, TokenType>
 }
 
-impl Scanner {
+impl Scanner{
     // TODO IMPLEMENT ERROR HANDLING FOR SCANNER
 
     pub fn new(src: String) -> Scanner {
@@ -22,11 +25,31 @@ impl Scanner {
              tokens: Vec::new(),
              start: 0,
              current: 0,
-             line: 0
+             line: 0,
+             identifiers: HashMap::from([
+                (String::from("or"), TokenType::OR),
+                (String::from("and"), TokenType::AND),
+                (String::from("class"), TokenType::CLASS),
+                (String::from("else"), TokenType::ELSE),
+                (String::from("false"), TokenType::FALSE),
+                (String::from("for"), TokenType::FOR),
+                (String::from("fun"), TokenType::FUN),
+                (String::from("if"), TokenType::IF),
+                (String::from("nil"), TokenType::NIL),
+                (String::from("print"), TokenType::PRINT),
+                (String::from("return"), TokenType::RETURN),
+                (String::from("super"), TokenType::SUPER),
+                (String::from("this"), TokenType::THIS),
+                (String::from("true"), TokenType::TRUE),
+                (String::from("var"), TokenType::VAR),
+                (String::from("while"), TokenType::WHILE)
+             ])
         } 
     }
 
     pub fn scan_tokens(&mut self) -> Result<&str, LoxErrors> {
+
+        // ? As it is now, the EOF token MUST be at the sample file to work well
         while !self.is_at_end() {
             self.start = self.current;
 
@@ -85,9 +108,9 @@ impl Scanner {
                     },
                     '=' => {
                         let new_token = if self.consume_next_token('=') {
-                            TokenType::BANG_EQUAL
+                            TokenType::EQUAL_EQUAL
                         } else {
-                            TokenType::BANG
+                            TokenType::EQUAL
                         };
 
                         self.add_new_token(new_token, None)
@@ -171,9 +194,23 @@ impl Scanner {
                                 Some(TokenLiteralType::Number(my_float)))
                         } else if c.is_alphabetic() {
                             // TODO implement this
+                            while self.peek_next().is_alphanumeric() {
+                                self.advance();
+                            }
+                            
+                            let ident = String::from(&self.source[self.start..self.current+1]);
 
-                            self.add_new_token(
-                                TokenType::IDENTIFIER, Some(TokenLiteralType::Identifier(String::new())))
+                            match self.identifiers.get(&ident) {
+                                Some(value) => 
+                                    self.add_new_token(
+                                        value.clone(),
+                                        Some(TokenLiteralType::Identifier(ident)))
+                                        ,
+                                None => 
+                                    self.add_new_token(
+                                        TokenType::IDENTIFIER, 
+                                        Some(TokenLiteralType::Identifier(ident)))
+                            }
                         } else {
                             return Err(LoxErrors::LexicalError { message: format!("Unindentified character: {}", c) });
                         }
@@ -200,12 +237,6 @@ impl Scanner {
 
     fn advance(&mut self) -> char {
         self.current += 1;
-        self.current_token()
-    }
-    
-    fn peek(&self) -> char {
-        if self.is_at_end() { return '\0'; }
-
         self.current_token()
     }
 
