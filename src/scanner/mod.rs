@@ -157,19 +157,28 @@ impl Scanner {
                                     return Err(LoxErrors::LexicalError { message: String::from("Malformed Number, for float point use 123.123") });
                                 }
                             }
-                        } 
 
-                        let my_float: f64 = match String::from(&self.source[self.start..self.current+1]).parse() {
-                            Ok(val) => val,
-                            Err(err) => return Err(
-                                LoxErrors::LexicalError { 
-                                    message: format!("An Unexpected Error Occured: {}", err.to_string()) 
-                                })
-                        };
+                            let my_float: f64 = match String::from(&self.source[self.start..self.current+1]).parse() {
+                                Ok(val) => val,
+                                Err(err) => return Err(
+                                    LoxErrors::LexicalError { 
+                                        message: format!("An Unexpected Error Occured: {}", err.to_string()) 
+                                    })
+                            };
+    
+                            self.add_new_token(
+                                TokenType::NUMBER, 
+                                Some(TokenLiteralType::Number(my_float)))
+                        } else if c.is_alphabetic() {
+                            // TODO implement this
 
-                        self.add_new_token(
-                            TokenType::NUMBER, 
-                            Some(TokenLiteralType::Number(my_float)))
+                            self.add_new_token(
+                                TokenType::IDENTIFIER, Some(TokenLiteralType::Identifier(String::new())))
+                        } else {
+                            return Err(LoxErrors::LexicalError { message: format!("Unindentified character: {}", c) });
+                        }
+
+                        
                     }
                 }
             )
