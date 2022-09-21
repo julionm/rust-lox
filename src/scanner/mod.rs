@@ -27,10 +27,9 @@ impl Scanner {
     }
 
     pub fn scan_tokens(&mut self) -> Result<&str, LoxErrors> {
-        println!("{}", self.source);
-        println!("");
-
         while !self.is_at_end() {
+            self.start = self.current;
+
             let current_token = self.current_token();
             let new_token = self.scan_token(current_token)?;
 
@@ -55,13 +54,10 @@ impl Scanner {
     }
 
     fn scan_token(&mut self, c: char) -> Result<Option<Token>, LoxErrors> {
-        println!("current char: {}", c);
-
         let result =
         match c {
             ' ' | '\r' | '\t' => return Ok(None),
             '\n' => {
-                println!("should increase line value...");
                 self.line += 1;
                 return Ok(None)
             }
@@ -124,6 +120,8 @@ impl Scanner {
                         self.add_new_token(TokenType::EOF, None)
                     },
                     '"' => {
+                        self.advance();
+
                         while self.current_token() != '"' && !self.is_at_end() {
                             if self.current_token() == '\n' {
                                 self.line += 1;
@@ -138,26 +136,30 @@ impl Scanner {
 
                         self.add_new_token(
                             TokenType::STRING, 
-                            Some(TokenLiteralType::String(String::from(&self.source[self.start..self.current]))))
+                            Some(TokenLiteralType::String(String::from(&self.source[self.start..self.current+1]))))
                     },
                     _ => {
                         if c.is_digit(10) {
-                            while self.peek().is_digit(10) {
+                            while self.peek_next().is_digit(10) {
                                 self.advance();
                             }
 
-                            if self.peek() == '.' && self.peek_next().is_digit(10) {
+                            if self.peek_next() == '.' {
                                 self.advance();
 
-                                while self.peek().is_digit(10) {
+                                if self.peek_next().is_digit(10) {
                                     self.advance();
+    
+                                    while self.peek_next().is_digit(10) {
+                                        self.advance();
+                                    }
+                                } else if self.current_token() == '.' {
+                                    return Err(LoxErrors::LexicalError { message: String::from("Malformed Number, for float point use 123.123") });
                                 }
                             }
-                        }
+                        } 
 
-                        println!("{:?}", self.tokens);
-
-                        let my_float: f64 = match String::from(&self.source[self.start..self.current]).parse() {
+                        let my_float: f64 = match String::from(&self.source[self.start..self.current+1]).parse() {
                             Ok(val) => val,
                             Err(err) => return Err(
                                 LoxErrors::LexicalError { 
