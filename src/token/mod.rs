@@ -1,5 +1,7 @@
 use std::fmt::Display;
 
+pub mod tree_nodes;
+
 #[derive(Debug, Clone)]
 pub enum TokenType {
     // ? single-character tokens
