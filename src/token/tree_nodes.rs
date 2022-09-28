@@ -3,23 +3,23 @@ use crate::token::TokenType;
 use super::TokenLiteralType;
 
 pub trait Expr {
-    fn accept<T: NodesVisitor>(&self, visitor: T);
+    fn accept<T: Visitor>(&self, visitor: T);
 }
 
-pub struct Binary<T: Expr> {
-    right: T,
-    left: T,
+pub struct Binary<R: Expr, L: Expr> {
+    right: R,
+    left: L,
     operation: TokenType
 }
 
-impl<T: Expr> Expr for Binary<T> {
-    fn accept<V: NodesVisitor>(&self, visitor: V) {
+impl<R: Expr, L: Expr> Expr for Binary<R, L> {
+    fn accept<V: Visitor>(&self, visitor: V) {
         visitor.doForBinary(&self);
     }
 }
 
-impl<T: Expr> Binary<T>{
-    pub fn new(right: T, left: T, operation: TokenType) -> Binary<T> {
+impl<R: Expr, L: Expr> Binary<R, L>{
+    pub fn new(right: R, left: L, operation: TokenType) -> Binary<R, L> {
         Binary {
             right,
             left,
@@ -28,19 +28,19 @@ impl<T: Expr> Binary<T>{
     }
 }
 
-pub struct Unary<T: Expr> {
-    right: T,
+pub struct Unary<R: Expr> {
+    right: R,
     operation: TokenType
 }
 
-impl<T: Expr> Expr for Unary<T> {
-    fn accept<V: NodesVisitor>(&self, visitor: V) {
+impl<R: Expr> Expr for Unary<R> {
+    fn accept<V: Visitor>(&self, visitor: V) {
         visitor.doForUnary(&self);
     }
 }
 
-impl<T: Expr> Unary<T> {
-    fn new(right: T, operation: TokenType) -> Unary<T> {
+impl<R: Expr> Unary<R> {
+    fn new(right: R, operation: TokenType) -> Unary<R> {
         Unary { right, operation }
     }
 }
@@ -50,7 +50,7 @@ pub struct Literal {
 }
 
 impl Expr for Literal {
-    fn accept<V: NodesVisitor>(&self, visitor: V) {
+    fn accept<V: Visitor>(&self, visitor: V) {
         visitor.doForLiteral(&self);
     }
 }
@@ -60,7 +60,7 @@ pub struct Grouping<T: Expr> {
 }
 
 impl<T: Expr> Expr for Grouping<T> {
-    fn accept<V: NodesVisitor>(&self, visitor: V) {
+    fn accept<V: Visitor>(&self, visitor: V) {
         visitor.doForGrouping(&self);
     }
 }
@@ -71,9 +71,35 @@ impl<T: Expr> Grouping<T> {
     }
 }
 
-pub trait NodesVisitor {
+pub trait Visitor {
     fn doForGrouping(&self, g: &Grouping<impl Expr>);
     fn doForLiteral(&self, l: &Literal);
     fn doForUnary(&self, u: &Unary<impl Expr>);
-    fn doForBinary(&self, b: &Binary<impl Expr>);
+    fn doForBinary(&self, b: &Binary<impl Expr, impl Expr>);
+}
+
+struct AstPrinter;
+
+impl AstPrinter {
+    fn parenthesize<L: Expr, R: Expr>(&self, name: String, exprs: Vec<impl Expr>) {
+
+    }
+}
+
+impl Visitor for AstPrinter {
+    fn doForBinary(&self, b: &Binary<impl Expr, impl Expr>) {
+        
+    }
+
+    fn doForLiteral(&self, l: &Literal) {
+        
+    }
+
+    fn doForGrouping(&self, g: &Grouping<impl Expr>) {
+        
+    }
+
+    fn doForUnary(&self, u: &Unary<impl Expr>) {
+        
+    }
 }
